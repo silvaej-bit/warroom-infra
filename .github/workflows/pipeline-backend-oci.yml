@@ -13,6 +13,8 @@ on:
         required: true
       OCI_SSH_PRIVATE_KEY:
         required: true
+      INFRA_TOKEN:
+        required: true
 
 jobs:
   ci:
@@ -20,6 +22,8 @@ jobs:
     with:
       image-name: ${{ github.event.repository.name }}
       dockerfile: ${{ inputs.dockerfile }}
+    secrets:
+      INFRA_TOKEN: ${{ secrets.INFRA_TOKEN }}
 
   cd:
     needs: ci
