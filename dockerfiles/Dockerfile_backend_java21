@@ -1,0 +1,39 @@
+# ============================================================
+# Dockerfile_backend_java21
+# Multi-stage build: Maven build → JRE 21 slim runtime
+# Compilado para Java 17 (maven.compiler.release=17)
+# Multi-platform: linux/amd64 + linux/arm64 (OCI A1.Flex gratuito)
+# ============================================================
+
+# --- Stage 1: Build ---
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+COPY confd_spring ./confd_spring
+
+RUN mvn package -DskipTests -B && \
+    mv target/*.jar target/app.jar
+
+# --- Stage 2: Runtime ---
+FROM eclipse-temurin:21-jre-alpine
+
+RUN addgroup -S app && adduser -S app -G app
+
+WORKDIR /app
+
+COPY --from=builder /build/target/app.jar ./app.jar
+COPY --from=builder /build/confd_spring ./confd_spring
+
+RUN chown -R app:app /app
+USER app
+
+EXPOSE 8080
+
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

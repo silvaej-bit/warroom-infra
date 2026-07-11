@@ -1,0 +1,17 @@
+# Copie este arquivo para terraform.tfvars e preencha os valores reais
+# NUNCA commite o terraform.tfvars — ele ja esta no .gitignore
+
+tenancy_ocid     = "ocid1.tenancy.oc1..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+user_ocid        = "ocid1.user.oc1..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+fingerprint      = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
+private_key_path = "~/.oci/oci_api_key.pem"
+region           = "sa-saopaulo-1"
+
+# Conteudo do arquivo ~/.ssh/id_rsa.pub (ou a chave que voce vai usar para SSH)
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB... seu-email@exemplo.com"
+
+warroom_db_user     = "warroom"
+warroom_db_password = "TROQUE_POR_SENHA_FORTE_MIN_12_CHARS"
+
+# Substitua silvaej-bit pelo nome da sua org/usuario no GitHub
+docker_image = "ghcr.io/silvaej-bit/warroom-service:latest"

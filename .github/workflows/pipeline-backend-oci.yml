@@ -1,0 +1,33 @@
+name: Pipeline Backend OCI
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        description: 'Dockerfile a usar (em warroom-infra/dockerfiles/)'
+        required: false
+        type: string
+        default: Dockerfile_backend_java21
+    secrets:
+      OCI_VM_IP:
+        required: true
+      OCI_SSH_PRIVATE_KEY:
+        required: true
+
+jobs:
+  ci:
+    uses: silvaej-bit/warroom-infra/.github/workflows/ci-backend-oci.yml@main
+    with:
+      image-name: ${{ github.event.repository.name }}
+      dockerfile: ${{ inputs.dockerfile }}
+
+  cd:
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    uses: silvaej-bit/warroom-infra/.github/workflows/cd-oci.yml@main
+    with:
+      app-name: ${{ github.event.repository.name }}
+      image-tag: ${{ github.sha }}
+    secrets:
+      OCI_VM_IP: ${{ secrets.OCI_VM_IP }}
+      OCI_SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_PRIVATE_KEY }}

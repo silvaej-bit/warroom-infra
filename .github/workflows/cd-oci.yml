@@ -1,0 +1,35 @@
+name: CD - OCI SSH Deploy
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+    secrets:
+      OCI_VM_IP:
+        required: true
+      OCI_SSH_PRIVATE_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy na VM OCI via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.OCI_VM_IP }}
+          username: ubuntu
+          key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/${{ inputs.app-name }}
+            docker compose pull app
+            docker compose up -d
+            docker image prune -f
+            echo "Deploy concluido: $(docker compose ps app --format '{{.Status}}')"
