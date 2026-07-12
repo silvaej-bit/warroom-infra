@@ -1,0 +1,34 @@
+# Render Blueprint — warroom-service
+# Referencia para configuracao manual no dashboard do Render
+# https://render.com/docs/blueprint-spec
+#
+# Como usar:
+#   1. Crie conta em render.com
+#   2. New > Web Service > "Deploy an existing image from a registry"
+#   3. Imagem: ghcr.io/silvaej-bit/warroom-service:latest
+#   4. Configure as envVars abaixo no dashboard
+#   5. Copie o Deploy Hook URL -> secret RENDER_DEPLOY_HOOK_URL no GitHub
+#
+# Banco de dados: Neon (https://neon.tech) — free forever
+#   1. Crie conta em neon.tech
+#   2. Crie um projeto -> copie a connection string
+#   3. Converta para JDBC: jdbc:postgresql://<host>/<dbname>?sslmode=require
+#   4. Cole em WARROOM_DB_URL abaixo
+
+services:
+  - type: web
+    name: warroom-service
+    runtime: image
+    image:
+      url: ghcr.io/silvaej-bit/warroom-service:latest
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
+      - key: WARROOM_DB_URL
+        sync: false  # jdbc:postgresql://<neon-host>/<dbname>?sslmode=require
+      - key: WARROOM_DB_USER
+        sync: false  # usuario do Neon (geralmente o nome do projeto)
+      - key: WARROOM_DB_PASSWORD
+        sync: false  # senha gerada pelo Neon
