@@ -68,10 +68,10 @@ volumes:
   pgdata:
 COMPOSEEOF
 
-# --- Subir containers ---
+# --- Subir containers (best-effort: imagem pode nao existir no primeiro boot) ---
 cd /opt/warroom
-docker compose pull
-docker compose up -d
+docker compose pull || true
+docker compose up -d || true
 
 # --- Servico systemd para reiniciar no boot ---
 cat > /etc/systemd/system/warroom.service << 'SVCEOF'

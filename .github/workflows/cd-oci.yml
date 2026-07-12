@@ -23,13 +23,19 @@ jobs:
     steps:
       - name: Deploy na VM OCI via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.repository_owner }}
         with:
           host: ${{ secrets.OCI_VM_IP }}
           username: ubuntu
           key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             cd /opt/${{ inputs.app-name }}
             docker compose pull app
             docker compose up -d
             docker image prune -f
+            docker logout ghcr.io
             echo "Deploy concluido: $(docker compose ps app --format '{{.Status}}')"
