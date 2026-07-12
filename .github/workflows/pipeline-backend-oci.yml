@@ -10,9 +10,9 @@ on:
         default: Dockerfile_backend_java21
     secrets:
       OCI_VM_IP:
-        required: true
+        required: false
       OCI_SSH_PRIVATE_KEY:
-        required: true
+        required: false
       INFRA_TOKEN:
         required: true
 
