@@ -27,24 +27,13 @@ RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 
 COPY --from=builder /build/target/app.jar ./app.jar
+COPY dockerfiles/entrypoint.sh ./entrypoint.sh
 
-# confd: instala binario compativel com a plataforma alvo
-ARG TARGETARCH=amd64
-RUN wget -q \
-    "https://github.com/kelseyhightower/confd/releases/download/v0.19.0/confd-0.19.0-linux-${TARGETARCH}" \
-    -O /usr/local/bin/confd \
-    && chmod +x /usr/local/bin/confd
-
-# Estrutura de diretorios esperada pelo confd
-RUN mkdir -p /etc/confd/conf.d /etc/confd/templates
-COPY --from=builder /build/confd_spring/application.properties.toml /etc/confd/conf.d/
-COPY --from=builder /build/confd_spring/application.properties.tmpl /etc/confd/templates/
-
-RUN chown -R app:app /app
+RUN chown -R app:app /app && chmod +x /app/entrypoint.sh
 USER app
 
 EXPOSE 8080
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
 
-ENTRYPOINT ["sh", "-c", "confd -onetime -backend env && java $JAVA_OPTS -jar app.jar --spring.config.additional-location=file:/app/application-infra.properties"]
+ENTRYPOINT ["/app/entrypoint.sh"]
