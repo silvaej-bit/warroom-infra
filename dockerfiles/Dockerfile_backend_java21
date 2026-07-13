@@ -47,4 +47,4 @@ EXPOSE 8080
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
 
-ENTRYPOINT ["sh", "-c", "confd -onetime -backend env && java $JAVA_OPTS -jar app.jar --spring.config.additional-location=file:/application-infra.properties"]
+ENTRYPOINT ["sh", "-c", "confd -onetime -backend env && java $JAVA_OPTS -jar app.jar --spring.config.additional-location=file:/app/application-infra.properties"]
