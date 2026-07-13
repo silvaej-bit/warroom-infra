@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=builder /build/target/app.jar ./app.jar
 COPY dockerfiles/entrypoint.sh ./entrypoint.sh
 
-RUN chown -R app:app /app && chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r//' /app/entrypoint.sh && chown -R app:app /app && chmod +x /app/entrypoint.sh
 USER app
 
 EXPOSE 8080
