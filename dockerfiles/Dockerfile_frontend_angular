@@ -1,0 +1,29 @@
+# ============================================================
+# Dockerfile_frontend_angular
+# Multi-stage: Node build → nginx static serve
+# Multi-platform: linux/amd64 + linux/arm64 (OCI A1.Flex gratuito)
+# ============================================================
+
+# --- Stage 1: Build ---
+FROM node:20-alpine AS builder
+
+WORKDIR /build
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# --- Stage 2: Runtime ---
+FROM nginx:alpine
+
+# Copia o output do build (suporta dist/<app>/browser/ do Angular 17+ e dist/<app>/ de versões anteriores)
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /build/dist /tmp/dist
+RUN find /tmp/dist -name "index.html" | head -1 | xargs -r dirname | xargs -r -I SRC sh -c 'cp -r SRC/. /usr/share/nginx/html/' && \
+    rm -rf /tmp/dist
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
