@@ -1,8 +1,9 @@
 # ============================================================
 # Dockerfile_backend_java21
-# Multi-stage build: Maven build → JRE 21 slim runtime
-# Compilado para Java 17 (maven.compiler.release=17)
-# Multi-platform: linux/amd64 + linux/arm64 (OCI A1.Flex gratuito)
+# Multi-stage build: Maven build -> JRE 21 slim runtime
+# Multi-platform: linux/amd64 + linux/arm64
+# Supports optional BuildKit secret 'github_token' for
+# private GitHub Packages dependencies (on-call-ao-common).
 # ============================================================
 
 # --- Stage 1: Build ---
@@ -11,7 +12,15 @@ FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /build
 
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+
+# Configure Maven for GitHub Packages if secret is provided
+RUN --mount=type=secret,id=github_token,required=false \
+    if [ -f /run/secrets/github_token ]; then \
+      mkdir -p /root/.m2 && \
+      TOKEN=$(cat /run/secrets/github_token) && \
+      printf '<settings><servers><server><id>github</id><username>x-access-token</username><password>%s</password></server></servers></settings>\n' "$TOKEN" > /root/.m2/settings.xml; \
+    fi && \
+    mvn dependency:go-offline -B
 
 COPY src ./src
 
